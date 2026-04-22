@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutor de Ruso Pro - David Salazar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white font-sans min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700">
+        <h1 class="text-3xl font-bold text-center mb-6 text-blue-400">🇷🇺 Tutor de Ruso Pro</h1>
+        <p class="text-slate-400 text-center mb-8">Versión Web optimizada para Cloudflare Pages</p>
+        
+        <div class="space-y-4">
+            <input type="text" id="userInput" placeholder="¿Qué quieres traducir?" 
+                class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:border-blue-500">
+            
+            <button onclick="procesar()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">
+                Traducir y Escuchar
+            </button>
+        </div>
+
+        <div id="resultado" class="mt-8 p-4 bg-slate-700 rounded-lg hidden">
+            <p id="textoRuso" class="text-xl font-semibold text-white mb-2"></p>
+            <p id="explicacion" class="text-sm text-slate-300"></p>
+        </div>
+    </div>
+
+    <script>
+        function procesar() {
+            const input = document.getElementById('userInput').value;
+            const resDiv = document.getElementById('resultado');
+            if(!input) return alert('Escribe algo, David');
+            
+            // Simulación de respuesta (Para conectar con Groq en Web se necesita un Worker)
+            resDiv.classList.remove('hidden');
+            document.getElementById('textoRuso').innerText = "Привет! (Privyet)";
+            document.getElementById('explicacion').innerText = "Traducción de prueba enviada desde Cloudflare.";
+            
+            // Lógica de audio (Browser Synthesis)
+            const msg = new SpeechSynthesisUtterance(input);
+            msg.lang = 'ru-RU';
+            window.speechSynthesis.speak(msg);
+        }
+    </script>
+</body>
+</html>
