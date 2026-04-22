@@ -1,0 +1,6 @@
+name = "tutor-ruso-api"
+main = "worker.js"
+compatibility_date = "2026-04-22"
+
+[vars]
+# Aquí no ponemos la llave, la pondremos por comando por seguridad
