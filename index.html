@@ -3,135 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tutor de Ruso Pro - David Salazar</title>
+    <title>Tutor Ruso Pro - David Salazar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background: #0f172a; }
-        .mic-active { animation: pulse-red 1.5s infinite; color: #ef4444 !important; }
-        @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-    </style>
 </head>
-<body class="text-slate-200 min-h-screen flex items-center justify-center p-4">
-
-    <div class="max-w-lg w-full bg-[#1e293b] p-8 rounded-[2.5rem] shadow-2xl border border-slate-700/50 relative overflow-hidden">
-        <div class="text-center mb-8 relative">
-            <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
-                Tutor Ruso Pro
-            </h1>
-            <p class="text-slate-400 mt-2 font-medium tracking-wide italic text-sm">DAVID SALAZAR EDITION</p>
+<body class="bg-[#0f172a] text-slate-200 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-lg w-full bg-[#1e293b] p-8 rounded-[2.5rem] shadow-2xl border border-slate-700/50 text-center">
+        <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 mb-6 italic">Tutor Ruso Pro</h1>
+        <textarea id="userInput" rows="3" placeholder="Escribe o habla..." class="w-full p-5 rounded-3xl bg-[#0f172a] border border-slate-600 text-white text-lg focus:outline-none mb-4"></textarea>
+        <div class="flex gap-2">
+            <button id="btnMic" onclick="toggleEscucha()" class="p-5 bg-slate-700 rounded-3xl"><i class="fas fa-microphone text-2xl"></i></button>
+            <button id="btnProcesar" onclick="hablarConAgente()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-3xl shadow-xl uppercase">Enviar al Agente</button>
         </div>
-        
-        <div class="space-y-6 relative">
-            <div class="relative">
-                <textarea id="userInput" rows="3" 
-                    placeholder="Escribe o pulsa el micro para hablar..." 
-                    class="w-full p-5 pr-14 rounded-3xl bg-[#0f172a] border border-slate-600 focus:ring-2 focus:ring-blue-500 focus:outline-none text-white placeholder-slate-500 transition-all resize-none text-lg shadow-inner"></textarea>
-                
-                <button id="btnMic" onclick="toggleEscucha()" 
-                    class="absolute right-4 top-5 text-slate-400 hover:text-blue-400 transition-colors">
-                    <i class="fas fa-microphone text-2xl"></i>
-                </button>
+        <div id="resultado" class="mt-8 p-6 bg-[#0f172a]/50 rounded-3xl hidden border border-slate-700/50">
+            <div class="flex justify-between mb-4">
+                <button id="btnStop" onclick="detenerVoz()" class="hidden text-red-400 font-bold bg-red-900/20 px-4 py-1 rounded-full border border-red-800">DETENER</button>
+                <button onclick="repetirVoz()" class="text-slate-400"><i class="fas fa-volume-up text-xl"></i></button>
             </div>
-            
-            <button id="btnProcesar" onclick="hablarConAgente()" 
-                class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-bold py-5 rounded-3xl transition-all transform active:scale-95 shadow-xl flex items-center justify-center gap-3 text-lg">
-                <i class="fas fa-paper-plane"></i>
-                <span>Enviar al Agente</span>
-            </button>
-        </div>
-
-        <div id="resultado" class="mt-8 p-6 bg-[#0f172a]/50 rounded-3xl hidden border border-slate-700/50 backdrop-blur-sm relative">
-            <div class="flex justify-between items-center mb-3">
-                <span class="text-xs font-bold text-blue-400 uppercase tracking-widest">Respuesta del Tutor</span>
-                <div class="flex gap-4">
-                    <button id="btnStop" onclick="detenerVoz()" class="hidden text-red-400 hover:text-red-300 transition-all flex items-center gap-2 text-xs font-bold bg-red-900/20 px-3 py-1 rounded-full border border-red-800/50">
-                        <i class="fas fa-stop-circle"></i> DETENER
-                    </button>
-                    <button onclick="repetirVoz()" class="text-slate-400 hover:text-white"><i class="fas fa-volume-up"></i></button>
-                </div>
-            </div>
-            <div id="respuestaIA" class="text-slate-200 leading-relaxed text-lg italic"></div>
+            <div id="respuestaIA" class="text-lg text-left italic leading-relaxed"></div>
         </div>
     </div>
-
     <script>
         const recognition = window.SpeechRecognition || window.webkitSpeechRecognition ? new (window.SpeechRecognition || window.webkitSpeechRecognition)() : null;
         let ultimaRespuesta = "";
-
         if(recognition) {
             recognition.lang = 'es-ES';
-            recognition.onresult = (event) => {
-                document.getElementById('userInput').value = event.results[0][0].transcript;
-                toggleEscucha();
-            };
+            recognition.onresult = (e) => { document.getElementById('userInput').value = e.results[0][0].transcript; toggleEscucha(); hablarConAgente(); };
         }
-
         function toggleEscucha() {
-            const micIcon = document.querySelector('#btnMic i');
-            if (micIcon.classList.contains('mic-active')) {
-                recognition.stop();
-                micIcon.classList.remove('mic-active');
-            } else {
-                if(!recognition) return alert("Navegador no compatible.");
-                recognition.start();
-                micIcon.classList.add('mic-active');
-            }
+            const icon = document.querySelector('#btnMic i');
+            if (icon.classList.contains('text-red-500')) { recognition.stop(); icon.classList.remove('text-red-500'); }
+            else { recognition.start(); icon.classList.add('text-red-500'); }
         }
-
         async function hablarConAgente() {
             const input = document.getElementById('userInput').value;
-            const respIA = document.getElementById('respuestaIA');
-            const resDiv = document.getElementById('resultado');
-            const btn = document.getElementById('btnProcesar');
-
             if(!input) return;
-            detenerVoz(); 
-
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-circle-notch animate-spin"></i> <span>Pensando...</span>';
-            
-            try {
-                const response = await fetch("/api/chat", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: input })
-                });
-                
-                const data = await response.json();
-                ultimaRespuesta = data.response;
-                respIA.innerText = ultimaRespuesta;
-                resDiv.classList.remove('hidden');
-                repetirVoz();
-
-            } catch (e) {
-                respIA.innerText = "Error: " + e.message;
-                resDiv.classList.remove('hidden');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>Enviar al Agente</span>';
-            }
+            detenerVoz();
+            const response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: input }) });
+            const data = await response.json();
+            ultimaRespuesta = data.response;
+            document.getElementById('respuestaIA').innerText = ultimaRespuesta;
+            document.getElementById('resultado').classList.remove('hidden');
+            repetirVoz();
         }
-
         function repetirVoz() {
-            if(!ultimaRespuesta) return;
             window.speechSynthesis.cancel();
-            
-            const msg = new SpeechSynthesisUtterance(ultimaRespuesta);
-            msg.lang = /[а-яА-Я]/.test(ultimaRespuesta) ? 'ru-RU' : 'es-ES';
-            msg.rate = 0.9;
-
+            const textoLimpio = ultimaRespuesta.replace(/[*#_]/g, '');
+            const msg = new SpeechSynthesisUtterance(textoLimpio);
+            msg.lang = /[а-яА-Я]/.test(textoLimpio) ? 'ru-RU' : 'es-ES';
+            msg.rate = 0.95;
             msg.onstart = () => document.getElementById('btnStop').classList.remove('hidden');
             msg.onend = () => document.getElementById('btnStop').classList.add('hidden');
-
             window.speechSynthesis.speak(msg);
         }
-
-        function detenerVoz() {
-            window.speechSynthesis.cancel();
-            document.getElementById('btnStop').classList.add('hidden');
-        }
+        function detenerVoz() { window.speechSynthesis.cancel(); document.getElementById('btnStop').classList.add('hidden'); }
     </script>
 </body>
 </html>
