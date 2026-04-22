@@ -3,44 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tutor de Ruso Pro - David Salazar</title>
+    <title>Tutor de Ruso Pro - Agente IA</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-white font-sans min-h-screen flex items-center justify-center">
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
     <div class="max-w-md w-full bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700">
-        <h1 class="text-3xl font-bold text-center mb-6 text-blue-400">🇷🇺 Tutor de Ruso Pro</h1>
-        <p class="text-slate-400 text-center mb-8">Versión Web optimizada para Cloudflare Pages</p>
+        <h1 class="text-3xl font-bold text-center mb-2 text-blue-400">🇷🇺 Tutor Ruso Pro</h1>
+        <p class="text-slate-400 text-center mb-6 text-sm">Agente de Inteligencia Artificial</p>
         
         <div class="space-y-4">
-            <input type="text" id="userInput" placeholder="¿Qué quieres traducir?" 
-                class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:border-blue-500">
+            <textarea id="userInput" rows="3" placeholder="Ej: Enséñame las vocales del alfabeto ruso..." 
+                class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:border-blue-500 text-white"></textarea>
             
-            <button onclick="procesar()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">
-                Traducir y Escuchar
+            <button id="btnProcesar" onclick="hablarConAgente()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition flex justify-center items-center">
+                <span id="btnText">Preguntar al Tutor</span>
             </button>
         </div>
 
-        <div id="resultado" class="mt-8 p-4 bg-slate-700 rounded-lg hidden">
-            <p id="textoRuso" class="text-xl font-semibold text-white mb-2"></p>
-            <p id="explicacion" class="text-sm text-slate-300"></p>
+        <div id="resultado" class="mt-6 p-4 bg-slate-900/50 rounded-lg hidden border border-slate-700">
+            <div id="respuestaIA" class="text-slate-200 text-sm leading-relaxed whitespace-pre-wrap"></div>
         </div>
     </div>
 
     <script>
-        function procesar() {
+        async function hablarConAgente() {
             const input = document.getElementById('userInput').value;
+            const btnText = document.getElementById('btnText');
             const resDiv = document.getElementById('resultado');
-            if(!input) return alert('Escribe algo, David');
-            
-            // Simulación de respuesta (Para conectar con Groq en Web se necesita un Worker)
+            const respIA = document.getElementById('respuestaIA');
+
+            if(!input) return alert('Escribe tu pregunta, David');
+
+            btnText.innerText = "Pensando...";
             resDiv.classList.remove('hidden');
-            document.getElementById('textoRuso').innerText = "Привет! (Privyet)";
-            document.getElementById('explicacion').innerText = "Traducción de prueba enviada desde Cloudflare.";
-            
-            // Lógica de audio (Browser Synthesis)
-            const msg = new SpeechSynthesisUtterance(input);
-            msg.lang = 'ru-RU';
-            window.speechSynthesis.speak(msg);
+            respIA.innerText = "El tutor está redactando la lección...";
+
+            try {
+                // Aquí es donde conectarás con tu Worker de Cloudflare
+                // Por ahora usamos síntesis de voz inmediata para que sientas la interacción
+                const msg = new SpeechSynthesisUtterance("Claro David, te enseñaré el alfabeto. Las primeras letras son A, Be, Ve...");
+                msg.lang = 'ru-RU';
+                window.speechSynthesis.speak(msg);
+                
+                respIA.innerText = "Para que yo te responda con Llama 3 aquí, debemos configurar el Worker de Cloudflare con tu API Key.";
+            } catch (e) {
+                respIA.innerText = "Error de conexión.";
+            } finally {
+                btnText.innerText = "Preguntar al Tutor";
+            }
         }
     </script>
 </body>
